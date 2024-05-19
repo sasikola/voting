@@ -26,6 +26,17 @@ router.post("/register", async (req, res) => {
       res.json({ error: "User exists with this username or email" });
     }
 
+    const admin = await User.findOne({ role: "admin" });
+    if (role === "admin" && admin) {
+      return res.status(400).json({ error: "Admin already exists!" });
+    }
+
+    if (!/^\d{12}$/.test(aadharCardNumber)) {
+      return res
+        .status(400)
+        .json({ error: "Aadhar Card Number must be exactly 12 digits" });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 

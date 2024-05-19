@@ -59,4 +59,45 @@ router.put("/profile/password", jwtAuthMiddleware, async (req, res) => {
   }
 });
 
+// route to vote
+router.post("/vote/:candidateId", jwtAuthMiddleware, async (req, res) => {
+  try {
+    const candidateId = req.params.candidateId;
+    const userId = req.user._id;
+    // to find the candidate using id
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ error: "Candidate not found!" });
+    }
+
+    // to find the user using id
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found!" });
+    }
+
+    // to check if the user has already voted
+    if (user.isVoted) {
+      return res.status(400).json({ error: "You have already voted!" });
+    }
+
+    if (user.role == "admin") {
+      return res.status(400).json({ error: "Admin is not allowed to vote!" });
+    }
+    // to add the candidate document to the votes array
+    candidate.votes.push({ user: userId });
+    candidate.voteCount++;
+
+    await candidate.save();
+
+    // update the user document
+    user.isVoted = true;
+    await user.save();
+    res.status(200).json({ message: "Vote cast successfully!", candidate });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error", error });
+  }
+});
+
 module.exports = router;
