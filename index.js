@@ -5,6 +5,8 @@ const dotenv = require("dotenv");
 const db = require("./db");
 const authRoute = require("./routes/authRoute");
 const userRoute = require("./routes/userRoute");
+const candidateRoute = require("./routes/candidateRoute");
+const { jwtAuthMiddleware } = require("./middleware/jwtAuth");
 
 dotenv.config();
 const port = process.env.PORT;
@@ -22,6 +24,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/auth", authRoute);
 app.use("/user", userRoute);
+app.use("/candidate", jwtAuthMiddleware, candidateRoute);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}!`);
