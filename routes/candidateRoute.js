@@ -54,54 +54,54 @@ router.post("/", jwtAuthMiddleware, async (req, res) => {
 });
 
 // route to update the candidate details
-router.put("/:candidateId", jwtAuthMiddleware, async (req, res) => {
-  try {
-    const { candidateId } = req.params;
-    const { name, party, age } = req.body;
-    const userIsAdmin = await isAdmin(req.user._id);
-    if (!userIsAdmin) {
-      return res
-        .status(403)
-        .json({ error: "Access denied. Only admins can update candidates." });
-    }
-    const candidate = await Candidate.findById(candidateId);
-    if (!candidate) {
-      return res.status(404).json({ error: "Candidate not found" });
-    }
-    candidate.name = name;
-    candidate.party = party;
-    candidate.age = age;
-    await candidate.save();
-    res
-      .status(200)
-      .json({ message: "Candidate updated successfully", candidate });
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error", error });
-  }
-});
-
 // router.put("/:candidateId", jwtAuthMiddleware, async (req, res) => {
 //   try {
 //     const { candidateId } = req.params;
-//     const data = req.body;
+//     const { name, party, age } = req.body;
 //     const userIsAdmin = await isAdmin(req.user._id);
 //     if (!userIsAdmin) {
 //       return res
 //         .status(403)
 //         .json({ error: "Access denied. Only admins can update candidates." });
 //     }
-//     const candidate = await Candidate.findByIdAndUpdate(candidateId, data, {
-//       new: true, //return updated data
-//       runValidators: true, //run mongo validation
-//     });
-
+//     const candidate = await Candidate.findById(candidateId);
+//     if (!candidate) {
+//       return res.status(404).json({ error: "Candidate not found" });
+//     }
+//     candidate.name = name;
+//     candidate.party = party;
+//     candidate.age = age;
+//     await candidate.save();
 //     res
 //       .status(200)
 //       .json({ message: "Candidate updated successfully", candidate });
 //   } catch (error) {
-//     console.log(error);
 //     res.status(500).json({ error: "Internal server error", error });
 //   }
 // });
+
+router.put("/:candidateId", jwtAuthMiddleware, async (req, res) => {
+  try {
+    const { candidateId } = req.params;
+    const data = req.body;
+    const userIsAdmin = await isAdmin(req.user._id);
+    if (!userIsAdmin) {
+      return res
+        .status(403)
+        .json({ error: "Access denied. Only admins can update candidates." });
+    }
+    const candidate = await Candidate.findByIdAndUpdate(candidateId, data, {
+      new: true, //return updated data
+      runValidators: true, //run mongo validation
+    });
+
+    res
+      .status(200)
+      .json({ message: "Candidate updated successfully", candidate });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error", error });
+  }
+});
 
 module.exports = router;
