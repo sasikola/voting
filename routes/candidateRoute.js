@@ -99,7 +99,30 @@ router.put("/:candidateId", jwtAuthMiddleware, async (req, res) => {
       .status(200)
       .json({ message: "Candidate updated successfully", candidate });
   } catch (error) {
-    console.log(error);
+    res.status(500).json({ error: "Internal server error", error });
+  }
+});
+
+// route to delete the candidate
+router.delete("/:candidateId", jwtAuthMiddleware, async (req, res) => {
+  try {
+    const { candidateId } = req.params;
+    const data = req.body;
+    const userIsAdmin = await isAdmin(req.user._id);
+    if (!userIsAdmin) {
+      return res
+        .status(403)
+        .json({ error: "Access denied. Only admins can update candidates." });
+    }
+
+    const candidate = await Candidate.findByIdAndDelete(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ error: "Candidate not found" });
+    }
+    res
+      .status(200)
+      .json({ message: "Candidate deleted successfully", candidate });
+  } catch (error) {
     res.status(500).json({ error: "Internal server error", error });
   }
 });
