@@ -23,18 +23,18 @@ router.post("/register", async (req, res) => {
       aadharCardNumber: aadharCardNumber,
     });
     if (existingUser) {
-      res.json({ message: "User exists with this username or email" });
+      res.json({ error: "User exists with this username or email" });
     }
 
     const admin = await User.findOne({ role: "admin" });
     if (role === "admin" && admin) {
-      return res.status(400).json({ message: "Admin already exists!" });
+      return res.status(400).json({ error: "Admin already exists!" });
     }
 
     if (!/^\d{12}$/.test(aadharCardNumber)) {
       return res
         .status(400)
-        .json({ message: "Aadhar Card Number must be exactly 12 digits" });
+        .json({ error: "Aadhar Card Number must be exactly 12 digits" });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -61,9 +61,9 @@ router.post("/register", async (req, res) => {
       response: response,
       token: token,
     });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Internal server error" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -74,7 +74,7 @@ router.post("/login", async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ message: "User not found with this Aadhar Number!" });
+        .json({ error: "User not found with this Aadhar Number!" });
     }
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
@@ -89,7 +89,7 @@ router.post("/login", async (req, res) => {
 
     res.status(200).json({ message: "Logged in successfully!", token: token });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error", error });
+    res.status(500).json({ error: "Internal server error", error });
   }
 });
 
