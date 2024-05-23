@@ -23,7 +23,7 @@ router.post("/register", async (req, res) => {
       aadharCardNumber: aadharCardNumber,
     });
     if (existingUser) {
-      res.json({ error: "User exists with this username or email" });
+      res.json({ error: "User exists with this aadhar card number" });
     }
 
     const admin = await User.findOne({ role: "admin" });
@@ -87,7 +87,13 @@ router.post("/login", async (req, res) => {
     };
     const token = generateToken(payload);
 
-    res.status(200).json({ message: "Logged in successfully!", token: token });
+    res
+      .status(200)
+      .json({
+        message: "Logged in successfully!",
+        token: token,
+        userDetails: user,
+      });
   } catch (error) {
     res.status(500).json({ error: "Internal server error", error });
   }
